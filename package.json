@@ -1,5 +1,5 @@
 {
-    "name": "lancer-scout-client-2",
+    "name": "lancer-scout-dashboard",
     "version": "0.1.0",
     "private": true,
     "dependencies": {
