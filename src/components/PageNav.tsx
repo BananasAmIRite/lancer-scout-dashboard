@@ -1,7 +1,6 @@
 import { Dispatch, ReactElement, SetStateAction, forwardRef, useState } from 'react';
 import { VscAdd, VscClose } from 'react-icons/vsc';
 import { Dropdown } from 'react-bootstrap';
-import TestPage from '../pages/testpage/TestPage';
 
 export interface NavPage {
     id: number;
@@ -9,32 +8,23 @@ export interface NavPage {
     page: ReactElement;
 }
 
-interface NavPageChoice {
+export interface NavPageChoice {
     pageName: string;
-    page: (i: number) => ReactElement;
+    page: () => ReactElement;
 }
-
-export const PAGE_CHOICES: NavPageChoice[] = [
-    {
-        pageName: 'Graph',
-        page: () => <>Graph!!</>,
-    },
-    {
-        pageName: 'Test',
-        page: () => <TestPage />,
-    },
-];
 
 export default function PageNav({
     navItems,
     setNavItems,
     currentPage,
     setCurrentPage,
+    choices,
 }: {
     navItems: NavPage[];
     setNavItems: Dispatch<SetStateAction<NavPage[]>>;
     currentPage: number;
     setCurrentPage: Dispatch<SetStateAction<number>>;
+    choices: NavPageChoice[];
 }) {
     const [lastId, setLastId] = useState(0);
 
@@ -53,7 +43,7 @@ export default function PageNav({
     };
     const removeNavPage = (id: number) => {
         if (currentPage === id) toPage(id - 1) || toPage(id + 1) || toPage(-1);
-        setNavItems(navItems.filter((e, i) => e.id !== id));
+        setNavItems(navItems.filter((e) => e.id !== id));
     };
 
     const toPage = (id: number) => {
@@ -66,7 +56,7 @@ export default function PageNav({
     };
 
     return (
-        <div className='w-100 border-bottom border-secondary' style={{ height: '7%' }}>
+        <div className='w-100 border-bottom border-secondary' style={{ height: '50px' }}>
             <div className='h-100 d-flex flex-row'>
                 <div className='h-100 d-flex flex-row' style={{}}>
                     {navItems.map((e, i) => (
@@ -78,7 +68,7 @@ export default function PageNav({
                         />
                     ))}
                 </div>
-                <AddPageButton addPage={addNavPage} goToPage={toPage} />
+                <AddPageButton addPage={addNavPage} goToPage={toPage} choices={choices} />
             </div>
         </div>
     );
@@ -139,24 +129,23 @@ const addMenu = forwardRef<any, any>(({ children, onClick }, ref) => {
     );
 });
 
-let i = 0;
-
 export function AddPageButton({
     addPage,
     goToPage,
+    choices,
 }: {
     addPage: (pageName: string, page: ReactElement) => number;
     goToPage: (id: number) => void;
+    choices: NavPageChoice[];
 }) {
     return (
         <Dropdown>
             <Dropdown.Toggle as={addMenu}>Custom toggle</Dropdown.Toggle>
             <Dropdown.Menu variant='dark'>
-                {PAGE_CHOICES.map((e) => (
+                {choices.map((e) => (
                     <Dropdown.Item
                         onClick={() => {
-                            i++;
-                            const page = e.page(i);
+                            const page = e.page();
                             const id = addPage(e.pageName, page);
                             goToPage(id);
                         }}
